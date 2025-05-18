@@ -174,10 +174,9 @@
       <label for="color-v2" id="color-v2t" style="display: none;">V2 Color:</label>
       <input type="text" id="color-v2" style="display: none;" placeholder="Color" oninput="updateTexts()">
 
-      <label for="Eamando" id="10-40t" style="display: none;">10-40 a:</label>
-      <select id="10-40" style="display: none;" onchange="updateTexts()">
-        <option value="EA" selected>Espera de asignacion</option>
-        <option value="Mando">Mando</option>
+      <label for="frec" id="frec" style="display: none;">V2 Color:</label>
+      <input type="text" id="frec" style="display: none;" placeholder="Color" oninput="updateTexts()">
+
       </select>
       
     </div>
@@ -195,11 +194,11 @@
 
     <div id="menu-10-97" class="menu">
       <div class="menu-item">
-        <p id="text2">/111 TAC1 | 10-97 489 | x1 10-31 Con grado A | x2 rehenes | V1: Placa: Color: | V2: Placa: Color:</p>
+        <p id="text2">/111 TAC1 | 10-97 489 | x1 10-31 Con grado A | x2 rehenes | V1: Placa: Color: | V2: Placa: Color: | Frec: </p>
         <button onclick="copyToClipboard('text2')">Copiar</button>
       </div>
       <div class="menu-item">
-        <p id="text3">/111 TAC1 | 10-97 488 | x1 10-31 Con grado A | x2 rehenes | V1: Placa: Color:</p>
+        <p id="text3">/111 TAC1 | 10-97 488 | x1 10-31 Con grado A | x2 rehenes | V1: Placa: Color: Frec: </p>
         <button onclick="copyToClipboard('text3')">Copiar</button>
       </div>
     </div>
@@ -247,8 +246,8 @@
       rehenesText = "";
      }
       document.getElementById("text1").innerText = `/111 ${Frecuencia} | 10-98 ${Delito} ${sv} ${rehenesText} ${retpatrullaje}`;
-      document.getElementById("text2").innerText = `/111 ${Frecuencia} | 10-97 489 | x${Cantidad} 10-31 Con grado ${Grado} | x${Rehenes} rehenes | V1: ${ModeloV1} Placa: ${PlacaV1} Color: ${ColorV1} | V2: ${ModeloV2} Placa: ${PlacaV2} Color: ${ColorV2}`;
-      document.getElementById("text3").innerText = `/111 ${Frecuencia} | 10-97 488 | x${Cantidad} 10-31 Con grado ${Grado} | x${Rehenes} rehenes | V1: ${ModeloV1} Placa: ${PlacaV1} Color: ${ColorV1}`;
+      document.getElementById("text2").innerText = `/111 ${Frecuencia} | 10-97 489 | x${Cantidad} 10-31 Con grado ${Grado} | x${Rehenes} rehenes | V1: ${ModeloV1} Placa: ${PlacaV1} Color: ${ColorV1} | V2: ${ModeloV2} Placa: ${PlacaV2} Color: ${ColorV2} | Frec: ${Frec}`;
+      document.getElementById("text3").innerText = `/111 ${Frecuencia} | 10-97 488 | x${Cantidad} 10-31 Con grado ${Grado} | x${Rehenes} rehenes | V1: ${ModeloV1} Placa: ${PlacaV1} Color: ${ColorV1} | Frec: ${Frec}`;
       document.getElementById("text4").innerText = `/111 ${Frecuencia} | 10-98 ${Delito} | x${Cantidad} 10-31 procesados y enviados a PF ${rehenesText} ${retpatrullaje}`;
     }
 

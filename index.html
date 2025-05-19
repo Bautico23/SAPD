@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú para hacer 10-97 y 10-98</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Oswald', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f7f7f7;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 2em;
+      color: #007BFF;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .selectors {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .selectors label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .selectors select, .selectors input {
+      padding: 8px;
+      font-size: 0.9em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 110%;
+      box-sizing: border-box;
+    }
+    .menu {
+      display: none;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    .menu.active {
+      display: block;
+    }
+    .menu-item {
+      margin-bottom: 15px;
+    }
+    .menu-item p {
+      font-size: 1em;
+      margin-bottom: 10px;
+    }
+    .menu-item button {
+      padding: 10px 15px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .menu-item button:hover {
+      background-color: #0056b3;
+    }
+    @media (max-width: 768px) {
+      .selectors {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Menú para hacer 10-97 y 10-98</h1>
+  <div class="container">
+    <div id="menu-selector-container" class="selectors">
+      <label for="menu-selector">Selecciona el tipo de menú:</label>
+      <select id="menu-selector" onchange="changeMenu()">
+        <option value="menu-10-98" selected>10-98</option>
+        <option value="menu-10-97">10-97</option>
+      </select>
+    </div>
+
+    <div id="selectors-container" class="selectors">
+      <label for="word-selector" id="word-selectort">Frecuencia:</label>
+      <select id="word-selector" onchange="updateTexts()">
+        <option value="A10">A10 </option>
+        <option value="A20">A20</option>
+        <option value="A30">A30</option>
+        <option value="A40">A40</option>
+        <option value="A50">A50</option>
+        <option value="A60">A60</option>
+        <option value="H10">H10</option>
+        <option value="H20">H20</option>
+        <option value="M10">M10</option>
+        <option value="M20">M20</option>
+        <option value="L10">L10</option>
+        <option value="L20">L20</option>
+        <option value="L30">L30</option>
+        <option value="L40">L40</option>
+        <option value="TAC1" selected>TAC1</option>
+        <option value="TAC2">TAC2</option>
+        <option value="TAC3">TAC3</option>
+        <option value="TAC4">TAC4</option>
+        <option value="TAC5">TAC5</option>
+        <option value="TAC6">TAC6</option>
+      </select>
+
+      <label for="Delito-selector" id="Delito-selectort">Delito:</label>
+      <select id="Delito-selector" onchange="updateTexts()">
+        <option value="489">489</option>
+        <option value="488">488</option>
+        <option value="10-85">10-85</option>
+        <option value="10-86">10-86</option>
+        <option value="246">246</option>
+        <option value="C1 Maletin">C1 Maletin</option>
+        <option value="417">417</option>
+        <option value="644">644</option>
+        <option value="487">487</option>
+        <option value="320">320</option>
+      </select>
+
+      <label for="cantidad-selector" id="cantidad-selectort">Cantidad de 10-31:</label>
+      <select id="cantidad-selector" onchange="updateTexts()">
+        <option value="1" selected>1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+      </select>
+
+      <label for="Grado-selector" id="Grado-t" style="display: none">Grado del arma:</label>
+      <select id="Grado-selector" style="display: none" onchange="updateTexts()">
+        <option value="A" selected>A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+      </select>
+
+      <label for="cantidad-rehenes" id="cantidad-rehenest" style="display: none">Cantidad de rehenes:</label>
+      <select id="cantidad-rehenes" style="display: none" onchange="updateTexts()">
+        <option value="1">1</option>
+        <option value="2" selected>2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+      </select>
+
+      <label for="modelo-v1" id="modelo-v1t" style="display: none;">V1 Modelo:</label>
+      <input type="text" id="modelo-v1" style="display: none;" placeholder="Modelo" oninput="updateTexts()">
+
+      <label for="placa-v1" id="placa-v1t" style="display: none;">V1 Placa:</label>
+      <input type="text" id="placa-v1" style="display: none;" placeholder="Placa" oninput="updateTexts()">
+
+      <label for="color-v1" id="color-v1t" style="display: none;">V1 Color:</label>
+      <input type="text" id="color-v1" style="display: none;" placeholder="Color" oninput="updateTexts()">
+
+      <label for="modelo-v2" id="modelo-v2t" style="display: none;">V2 Modelo:</label>
+      <input type="text" id="modelo-v2" style="display: none;" placeholder="Modelo" oninput="updateTexts()">
+
+      <label for="placa-v2" id="placa-v2t" style="display: none;">V2 Placa:</label>
+      <input type="text" id="placa-v2" style="display: none;" placeholder="Placa" oninput="updateTexts()">
+
+      <label for="color-v2" id="color-v2t" style="display: none;">V2 Color:</label>
+      <input type="text" id="color-v2" style="display: none;" placeholder="Color" oninput="updateTexts()">
+
+      <label for="frec" id="frect" style="display: none;">Frec:</label>
+      <input type="text" id="frec" style="display: none;" placeholder="Frec" oninput="updateTexts()">
+      </select>
+      
+    </div>
+
+    <div id="menu-10-98" class="menu active">
+      <div class="menu-item">
+        <p id="text1">/111 TAC1 | 10-98 489 | S/v de los 10-31 luego de C6 | Rehenes a salvo | 10-40 a EA</p>
+        <button onclick="copyToClipboard('text1')">Copiar</button>
+      </div>
+      <div class="menu-item">
+        <p id="text4">/111 TAC1 | 10-98 489 | x1 10-31 procesados y enviados a PF | Rehenes a salvo | 10-40 a EA</p>
+        <button onclick="copyToClipboard('text4')">Copiar</button>
+      </div>
+    </div>
+
+    <div id="menu-10-97" class="menu">
+      <div class="menu-item">
+        <p id="text2">/111 TAC1 | 10-97 489 | x1 10-31 Con grado A | x2 rehenes | V1: Placa: Color: | V2: Placa: Color: | Frec: </p>
+        <button onclick="copyToClipboard('text2')">Copiar</button>
+      </div>
+      <div class="menu-item">
+        <p id="text3">/111 TAC1 | 10-97 488 | x1 10-31 Con grado A | x2 rehenes | V1: Placa: Color: | Frec: </p>
+        <button onclick="copyToClipboard('text3')">Copiar</button>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <script>
+    function copyToClipboard(elementId) {
+      const text = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(text).catch(err => console.error("Error al copiar:", err));
+    }
+
+    function updateTexts() {
+      const Frecuencia = document.getElementById("word-selector").value;
+      const Cantidad = document.getElementById("cantidad-selector").value;
+      const Grado = document.getElementById("Grado-selector").value;
+      const Delito = document.getElementById("Delito-selector").value;
+      const ModeloV1 = document.getElementById("modelo-v1").value;
+      const ModeloV2 = document.getElementById("modelo-v2").value;
+      const PlacaV1 = document.getElementById("placa-v1").value;
+      const PlacaV2 = document.getElementById("placa-v2").value;
+      const ColorV1 = document.getElementById("color-v1").value;
+      const ColorV2 = document.getElementById("color-v2").value;
+      const Rehenes = document.getElementById("cantidad-rehenes").value;
+      const Frec = document.getElementById("frec").value;
+
+      
+      //Ocultar texto de rehenes a salvo y 10-40 a EA
+      let rehenesText = "";
+      let retpatrullaje = "";
+      let sv = "| S/v de los 10-31 luego de C6";
+     if (Delito === "489" || Delito === "488") {
+    rehenesText = "| Rehenes a salvo";
+    retpatrullaje = "| 10-40 a EA";
+    } else {
+    retpatrullaje = "| Ret 10-10"
+     }
+
+     if (Delito === "10-85") {
+      rehenesText = "";
+      retpatrullaje = "| 10-40 a EA";
+     }
+
+     if (Delito === "10-86") {
+      sv = ""
+      retpatrullaje = "| 10-40 a EA";
+      rehenesText = "";
+     }
+      document.getElementById("text1").innerText = `/111 ${Frecuencia} | 10-98 ${Delito} ${sv} ${rehenesText} ${retpatrullaje}`;
+      document.getElementById("text2").innerText = `/111 ${Frecuencia} | 10-97 489 | x${Cantidad} 10-31 Con grado ${Grado} | x${Rehenes} rehenes | V1: ${ModeloV1} Placa: ${PlacaV1} Color: ${ColorV1} | V2: ${ModeloV2} Placa: ${PlacaV2} Color: ${ColorV2} | Frec: ${Frec}`;
+      document.getElementById("text3").innerText = `/111 ${Frecuencia} | 10-97 488 | x${Cantidad} 10-31 Con grado ${Grado} | x${Rehenes} rehenes | V1: ${ModeloV1} Placa: ${PlacaV1} Color: ${ColorV1} | Frec: ${Frec}`;
+      document.getElementById("text4").innerText = `/111 ${Frecuencia} | 10-98 ${Delito} | x${Cantidad} 10-31 procesados y enviados a PF ${rehenesText} ${retpatrullaje}`;
+    }
+
+    function changeMenu() {
+      const selectedMenu = document.getElementById("menu-selector").value;
+      const selectorsContainer = document.getElementById("selectors-container");
+      const Frecuencia = document.getElementById("word-selector");
+      const FrecuenciaT = document.getElementById("word-selectort");
+      const Cantidad = document.getElementById("cantidad-selector");
+      const CantidadT = document.getElementById("cantidad-selectort");
+      const Delito = document.getElementById("Delito-selector");
+      const DelitoT = document.getElementById("Delito-selectort");
+      const selectedGrado = document.getElementById("Grado-selector");
+      const selectedGradoT = document.getElementById("Grado-t");
+      const ModeloV1 = document.getElementById("modelo-v1");
+      const ModeloV1T = document.getElementById("modelo-v1t");
+      const ModeloV2 = document.getElementById("modelo-v2");
+      const ModeloV2T = document.getElementById("modelo-v2t");
+      const PlacaV1 = document.getElementById("placa-v1");
+      const PlacaV1T = document.getElementById("placa-v1t");
+      const PlacaV2 = document.getElementById("placa-v2");
+      const PlacaV2T = document.getElementById("placa-v2t");
+      const ColorV1 = document.getElementById("color-v1");
+      const ColorV1T = document.getElementById("color-v1t");
+      const ColorV2 = document.getElementById("color-v2");
+      const ColorV2T = document.getElementById("color-v2t");
+      const container = document.querySelector(".container");
+      const rehenes = document.getElementById("cantidad-rehenes");
+      const rehenesT = document.getElementById("cantidad-rehenest");
+      const Frec = document.getElementById("frec");
+      const FrecT = document.getElementById("frect");
+
+
+      function OcultarTodo(){
+        Frecuencia.style.display = "none";
+      FrecuenciaT.style.display = "none";
+      Cantidad.style.display = "none";
+      CantidadT.style.display = "none";
+      Delito.style.display = "none";
+      DelitoT.style.display = "none";
+      selectedGrado.style.display = "none";
+      selectedGradoT.style.display = "none";
+      ModeloV1.style.display = "none";
+      ModeloV1T.style.display = "none";
+      ModeloV2.style.display = "none";
+      ModeloV2T.style.display = "none";
+      PlacaV1.style.display = "none";
+      PlacaV1T.style.display = "none";
+      PlacaV2.style.display = "none";
+      PlacaV2T.style.display = "none";
+      ColorV1.style.display = "none";
+      ColorV1T.style.display = "none";
+      ColorV2.style.display = "none";
+      ColorV2T.style.display = "none";
+      rehenes.style.display = "none";
+      rehenesT.style.display = "none";
+      }
+
+      function OcultarV(){
+        selectedGrado.style.display = "none";
+      selectedGradoT.style.display = "none";
+      ModeloV1.style.display = "none";
+      ModeloV1T.style.display = "none";
+      ModeloV2.style.display = "none";
+      ModeloV2T.style.display = "none";
+      PlacaV1.style.display = "none";
+      PlacaV1T.style.display = "none";
+      PlacaV2.style.display = "none";
+      PlacaV2T.style.display = "none";
+      ColorV1.style.display = "none";
+      ColorV1T.style.display = "none";
+      ColorV2.style.display = "none";
+      ColorV2T.style.display = "none";
+      }
+
+      function MostrarV() {
+        selectedGrado.style.display = "grid";
+      selectedGradoT.style.display = "grid";
+      ModeloV1.style.display = "grid";
+      ModeloV1T.style.display = "grid";
+      ModeloV2.style.display = "grid";
+      ModeloV2T.style.display = "grid";
+      PlacaV1.style.display = "grid";
+      PlacaV1T.style.display = "grid";
+      PlacaV2.style.display = "grid";
+      PlacaV2T.style.display = "grid";
+      ColorV1.style.display = "grid";
+      ColorV1T.style.display = "grid";
+      ColorV2.style.display = "grid";
+      ColorV2T.style.display = "grid";
+      rehenes.style.display = "grid";
+      rehenesT.style.display = "grid";
+      }
+
+      if (selectedMenu === "menu-") {
+        selectorsContainer.style.display = "none"
+      } else {
+        selectorsContainer.style.display = "grid"
+      }
+
+      if (selectedMenu === "menu-10-98") {
+        OcultarV()
+      Frecuencia.style.display = "grid";
+      FrecuenciaT.style.display = "grid";
+      Cantidad.style.display = "grid";
+      CantidadT.style.display = "grid";
+      Delito.style.display = "grid";
+      DelitoT.style.display = "grid";
+      Frec.style.display = "none";
+      FrecT.style.display = "none";
+      rehenes.style.display = "none";
+      rehenesT.style.display = "none";
+      }
+
+      if (selectedMenu === "menu-10-97") {
+        MostrarV()
+      Frecuencia.style.display = "grid";
+      FrecuenciaT.style.display = "grid";
+      Cantidad.style.display = "grid";
+      CantidadT.style.display = "grid";
+      Delito.style.display = "none";
+      DelitoT.style.display = "none";
+      Frec.style.display = "grid";
+      FrecT.style.display = "grid";
+      }
+
+      if (selectedMenu === "menu-") {
+        OcultarTodo()
+      } else {
+      }
+      
+
+
+      
+      if (selectedMenu === "menu-10-98" || selectedMenu === "menu-" || selectedMenu === "menu-") {
+      container.style.maxWidth = "800px"; // Ajusta el valor según tus necesidades
+     } else {
+      container.style.maxWidth = "1600px"; // Valor predeterminado
+     }
+
+      document.querySelectorAll(".menu").forEach(menu => menu.classList.remove("active"));
+      document.getElementById(selectedMenu).classList.add("active");
+    }
+  </script>
+</body>
+</html>

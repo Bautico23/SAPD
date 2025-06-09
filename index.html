@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menú para hacer 10-97 y 10-98</title>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
   <style>
     * {box-sizing: border-box;}
 
@@ -97,6 +98,7 @@
       backdrop-filter: blur(5px);
       border: 1px solid rgba(255, 255, 255, 0.05);
       flex-shrink: 0;
+      min-height: fit-content;
     }
 
     .selector-group {
@@ -105,6 +107,8 @@
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.1);
       transition: all 0.3s ease;
+      height: fit-content;
+      min-height: auto;
     }
 
     .selector-group:hover {
@@ -169,6 +173,7 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
       flex: 1;
       overflow-y: auto;
+      min-height: 200px;
     }
 
     .menu.active {
@@ -253,16 +258,17 @@
         grid-template-columns: 1fr 1fr;
         gap: 10px;
         padding: 12px;
+        margin-bottom: 15px;
       }
 
       h1 {
-        font-size: 1.5em;
-        margin: 10px 0 15px;
+        font-size: 1.4em;
+        margin: 8px 0 12px;
       }
 
       .main-selector {
-        margin-bottom: 12px;
-        padding: 12px;
+        margin-bottom: 10px;
+        padding: 10px;
       }
 
       .main-selector select {
@@ -272,24 +278,46 @@
       }
 
       .container {
-        padding: 8px;
-        height: calc(100vh - 40px);
+        padding: 6px;
+        height: calc(100vh - 30px);
+      }
+
+      .menu {
+        min-height: 150px;
+        padding: 15px;
       }
 
       .menu-item {
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
+        margin-bottom: 12px;
+        padding: 15px;
       }
 
       .menu-item p {
-        font-size: 0.85em;
+        font-size: 0.82em;
+        line-height: 1.4;
       }
 
       .menu-item button {
         align-self: flex-end;
-        padding: 6px 12px;
-        font-size: 0.8em;
+        padding: 8px 15px;
+        font-size: 0.85em;
+      }
+
+      #image-upload-group {
+        grid-column: 1 / -1;
+      }
+
+      #detected-plates {
+        max-height: 120px;
+        overflow-y: auto;
+      }
+
+      #plates-text {
+        max-height: 80px;
+        font-size: 0.9em;
       }
     }
 
@@ -341,7 +369,7 @@
 
       <div class="selector-group">
         <label>Delito:</label>
-        <select id="Delito-selector" onchange="updateTexts()">
+        <select id="Delito-selector" onchange="updateTexts(); updateDelitoVisibility()">
           <option value="489">489</option>
           <option value="488">488</option>
           <option value="10-85">10-85</option>
@@ -416,6 +444,16 @@
         <label id="frec-label">Frec:</label>
         <input type="text" id="frec" placeholder="Frec" oninput="updateTexts()">
       </div>
+      <div class="selector-group" id="image-upload-group" style="display:none">
+        <label id="image-upload-label">Subir imagen para detectar matrículas:</label>
+        <input type="file" id="image-upload" accept="image/*" onchange="processImage()">
+        <div id="image-preview" style="margin-top: 10px; max-height: 200px; overflow: hidden; display: flex; justify-content: center; align-items: center; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; background: rgba(255,255,255,0.05);"></div>
+        <div id="processing-status" style="margin-top: 10px; color: #007BFF; font-size: 0.9em; text-align: center;"></div>
+        <div id="detected-plates" style="margin-top: 10px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px; display: none;">
+          <label>Matrículas detectadas:</label>
+          <textarea id="plates-text" rows="3" style="width: 100%; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 8px; resize: vertical; min-height: 70px; max-height: 120px;" oninput="updateTexts()"></textarea>
+        </div>
+      </div>
     </div>
 
     <div id="menu-10-98" class="menu active">
@@ -478,9 +516,29 @@
       }
 
       document.getElementById("text1").innerText = `/111 ${values.freq} | 10-98 ${values.delito} ${sv} ${rehenesText} ${retpatrullaje}`;
-      document.getElementById("text2").innerText = `/111 ${values.freq} | 10-97 489 | x${values.cantidad} 10-31 Con grado ${values.grado} | x${values.rehenes} rehenes | V1: ${values.modeloV1} Placa: ${values.placaV1} Color: ${values.colorV1} | V2: ${values.modeloV2} Placa: ${values.placaV2} Color: ${values.colorV2} | Frec: ${values.frec}`;
-      document.getElementById("text3").innerText = `/111 ${values.freq} | 10-97 488 | x${values.cantidad} 10-31 Con grado ${values.grado} | x${values.rehenes} rehenes | V1: ${values.modeloV1} Placa: ${values.placaV1} Color: ${values.colorV1} | Frec: ${values.frec}`;
+      // Formato especial para 10-85 con matrículas detectadas
+      if (values.delito === "10-85") {
+        const detectedPlates = document.getElementById("plates-text") ? document.getElementById("plates-text").value : "";
+        if (detectedPlates.trim()) {
+          const platesArray = detectedPlates.split('\n').filter(plate => plate.trim()).map(plate => plate.trim());
+          const platesText = platesArray.join(' | ');
+          document.getElementById("text2").innerText = `/111 ${values.freq} | 10-97 ${values.delito} | ${platesText}`;
+          document.getElementById("text3").innerText = `/111 ${values.freq} | 10-97 ${values.delito} | ${platesText}`;
+        } else {
+          document.getElementById("text2").innerText = `/111 ${values.freq} | 10-97 ${values.delito} | (Subir imagen para detectar matrículas)`;
+          document.getElementById("text3").innerText = `/111 ${values.freq} | 10-97 ${values.delito} | (Subir imagen para detectar matrículas)`;
+        }
+      } else {
+        document.getElementById("text2").innerText = `/111 ${values.freq} | 10-97 ${values.delito} | x${values.cantidad} 10-31 Con grado ${values.grado} | x${values.rehenes} rehenes | V1: ${values.modeloV1} Placa: ${values.placaV1} Color: ${values.colorV1} | V2: ${values.modeloV2} Placa: ${values.placaV2} Color: ${values.colorV2} | Frec: ${values.frec}`;
+        document.getElementById("text3").innerText = `/111 ${values.freq} | 10-97 ${values.delito} | x${values.cantidad} 10-31 Con grado ${values.grado} | x${values.rehenes} rehenes | V1: ${values.modeloV1} Placa: ${values.placaV1} Color: ${values.colorV1} | Frec: ${values.frec}`;
+      }
       document.getElementById("text4").innerText = `/111 ${values.freq} | 10-98 ${values.delito} | x${values.cantidad} 10-31 procesados y enviados a PF ${rehenesText} ${retpatrullaje}`;
+
+      // Controlar visibilidad en menú 10-97
+      const selectedMenu = document.getElementById("menu-selector").value;
+      if (selectedMenu === "menu-10-97") {
+        updateDelitoVisibility();
+      }
     }
 
     function toggleGroups(groups, show) {
@@ -495,6 +553,7 @@
       const container = document.querySelector(".container");
       const delitoGroup = document.querySelector(".selector-group:nth-child(2)");
       const wordSelector = document.getElementById("word-selector");
+      const delitoSelector = document.getElementById("Delito-selector");
 
       const allGroups = ["grado-group", "rehenes-group", "modelo-v1-group", "placa-v1-group", "color-v1-group", "modelo-v2-group", "placa-v2-group", "color-v2-group", "frec-group"];
       const vehicleGroups = ["grado-group", "rehenes-group", "modelo-v1-group", "placa-v1-group", "color-v1-group", "modelo-v2-group", "placa-v2-group", "color-v2-group", "frec-group"];
@@ -504,6 +563,19 @@
       if (selectedMenu === "menu-10-98") {
         container.style.maxWidth = "800px";
         delitoGroup.style.display = "";
+        // Restaurar todas las opciones de delito para 10-98
+        delitoSelector.innerHTML = `
+          <option value="489">489</option>
+          <option value="488">488</option>
+          <option value="10-85">10-85</option>
+          <option value="10-86">10-86</option>
+          <option value="246">246</option>
+          <option value="C1 Maletin">C1 Maletin</option>
+          <option value="417">417</option>
+          <option value="644">644</option>
+          <option value="487">487</option>
+          <option value="320">320</option>
+        `;
         // Restaurar todas las opciones de frecuencia
         wordSelector.innerHTML = `
           <option value="A10">A10</option><option value="A20">A20</option><option value="A30">A30</option><option value="A40">A40</option><option value="A50">A50</option><option value="A60">A60</option>
@@ -513,20 +585,212 @@
           <option value="TAC1" selected>TAC1</option><option value="TAC2">TAC2</option><option value="TAC3">TAC3</option><option value="TAC4">TAC4</option><option value="TAC5">TAC5</option><option value="TAC6">TAC6</option>
         `;
       } else if (selectedMenu === "menu-10-97") {
-        toggleGroups(vehicleGroups, true);
         container.style.maxWidth = "1600px";
-        delitoGroup.style.display = "none";
+        delitoGroup.style.display = "";
+        // Solo mostrar opciones específicas para 10-97
+        delitoSelector.innerHTML = `
+          <option value="489" selected>489</option>
+          <option value="488">488</option>
+          <option value="10-85">10-85</option>
+        `;
         // Solo mostrar opciones TAC para 10-97
         wordSelector.innerHTML = `
           <option value="TAC1" selected>TAC1</option><option value="TAC2">TAC2</option><option value="TAC3">TAC3</option><option value="TAC4">TAC4</option><option value="TAC5">TAC5</option><option value="TAC6">TAC6</option>
         `;
+        // Mostrar todos los grupos de vehículos
+        toggleGroups(vehicleGroups, true);
+        // Controlar visibilidad de textos según delito seleccionado
+        updateDelitoVisibility();
       }
 
       document.querySelectorAll(".menu").forEach(menu => menu.classList.remove("active"));
       document.getElementById(selectedMenu).classList.add("active");
       updateTexts();
     }
+
+    function updateDelitoVisibility() {
+      const selectedMenu = document.getElementById("menu-selector").value;
+      const selectedDelito = document.getElementById("Delito-selector").value;
+      const cantidadGroup = document.querySelector(".selector-group:nth-child(3)"); // Selector de cantidad de 10-31
+
+      if (selectedMenu === "menu-10-97") {
+        const menuItems = document.querySelectorAll("#menu-10-97 .menu-item");
+        const v2Groups = ["modelo-v2-group", "placa-v2-group", "color-v2-group"];
+        const basicGroups = ["grado-group", "rehenes-group", "modelo-v1-group", "placa-v1-group", "color-v1-group", "frec-group"];
+
+        if (selectedDelito === "489") {
+          // Mostrar texto de 489 (text2), ocultar texto de 488 (text3)
+          menuItems[0].style.display = "flex"; // text2 (489)
+          menuItems[1].style.display = "none"; // text3 (488)
+          // Mostrar todos los selectores básicos para 489
+          toggleGroups(basicGroups, true);
+          // Mostrar selectores V2 para 489
+          toggleGroups(v2Groups, true);
+          // Mostrar selector de cantidad de 10-31
+          cantidadGroup.style.display = "";
+          // Ocultar selector de imagen
+          document.getElementById("image-upload-group").style.display = "none";
+        } else if (selectedDelito === "488") {
+          // Mostrar texto de 488 (text3), ocultar texto de 489 (text2)
+          menuItems[0].style.display = "none"; // text2 (489)
+          menuItems[1].style.display = "flex"; // text3 (488)
+          // Mostrar todos los selectores básicos para 488
+          toggleGroups(basicGroups, true);
+          // Ocultar selectores V2 para 488
+          toggleGroups(v2Groups, false);
+          // Mostrar selector de cantidad de 10-31
+          cantidadGroup.style.display = "";
+          // Ocultar selector de imagen
+          document.getElementById("image-upload-group").style.display = "none";
+        } else if (selectedDelito === "10-85") {
+          // Para 10-85, mostrar solo un texto
+          menuItems[0].style.display = "flex"; // text2
+          menuItems[1].style.display = "none"; // text3 - ocultar para evitar duplicado
+          // Para 10-85, ocultar todos los selectores excepto frecuencia, delito e imagen
+          const allSelectorsExceptBasic = ["grado-group", "rehenes-group", "modelo-v1-group", "placa-v1-group", "color-v1-group", "modelo-v2-group", "placa-v2-group", "color-v2-group", "frec-group"];
+          toggleGroups(allSelectorsExceptBasic, false);
+          // Ocultar también el selector de cantidad de 10-31 para 10-85
+          cantidadGroup.style.display = "none";
+          // Mostrar selector de imagen para OCR
+          document.getElementById("image-upload-group").style.display = "";
+        } else {
+          // Para otros delitos, mostrar selectores básicos
+          toggleGroups(basicGroups, true);
+          toggleGroups(v2Groups, true);
+          // Mostrar selector de cantidad para otros delitos
+          cantidadGroup.style.display = "";
+          // Ocultar selector de imagen para otros delitos
+          document.getElementById("image-upload-group").style.display = "none";
+        }
+      } else {
+        // Para menu 10-98, siempre mostrar el selector de cantidad
+        cantidadGroup.style.display = "";
+      }
+    }
+
+    async function processImage() {
+      const fileInput = document.getElementById("image-upload");
+      const file = fileInput.files[0];
+      const statusDiv = document.getElementById("processing-status");
+      const previewDiv = document.getElementById("image-preview");
+      const detectedPlatesDiv = document.getElementById("detected-plates");
+      const platesTextarea = document.getElementById("plates-text");
+
+      if (!file) return;
+
+      // Mostrar preview de la imagen
+      const img = document.createElement("img");
+      img.style.maxWidth = "100%";
+      img.style.maxHeight = "190px";
+      img.style.width = "auto";
+      img.style.height = "auto";
+      img.style.objectFit = "contain";
+      img.style.borderRadius = "4px";
+      previewDiv.innerHTML = "";
+      previewDiv.appendChild(img);
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        img.src = e.target.result;
+
+        // Iniciar procesamiento OCR
+        statusDiv.textContent = "Procesando imagen con OCR.space API...";
+        statusDiv.style.color = "#007BFF";
+
+        try {
+          // Convertir imagen a base64
+          const base64Image = e.target.result.split(',')[1];
+
+          // Usar OCR.space API (gratuita y mejor que Tesseract)
+          const formData = new FormData();
+          formData.append('base64Image', `data:image/jpeg;base64,${base64Image}`);
+          formData.append('language', 'eng');
+          formData.append('isOverlayRequired', 'false');
+          formData.append('detectOrientation', 'false');
+          formData.append('scale', 'true');
+          formData.append('OCREngine', '2');
+          formData.append('isTable', 'false');
+
+          statusDiv.textContent = "Enviando imagen para procesamiento...";
+
+          const response = await fetch('https://api.ocr.space/parse/image', {
+            method: 'POST',
+            headers: {
+              'apikey': 'helloworld' // API key gratuita pública
+            },
+            body: formData
+          });
+
+          const result = await response.json();
+
+          if (result.ParsedResults && result.ParsedResults.length > 0) {
+            const text = result.ParsedResults[0].ParsedText;
+
+            console.log('Texto original detectado:', text);
+
+            // Dividir el texto en líneas para analizar cada línea por separado
+            const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+            let detectedPlates = [];
+
+            // Procesar cada línea
+            lines.forEach(line => {
+              // Limpiar la línea: eliminar caracteres especiales pero mantener espacios para detectar separaciones
+              let cleanLine = line
+                .replace(/[^A-Z0-9\s]/g, ' ') // Reemplazar caracteres especiales con espacios
+                .replace(/\s+/g, ' ') // Normalizar espacios múltiples
+                .trim();
+
+              // Dividir por espacios para obtener palabras individuales
+              const words = cleanLine.split(' ').filter(word => word.length > 0);
+
+              words.forEach(word => {
+                // Aplicar correcciones de OCR comunes
+                let correctedWord = word
+
+
+                // Verificar si es exactamente una matrícula de 8 caracteres
+                if (correctedWord.length === 8 && /^[A-Z0-9]{8}$/.test(correctedWord)) {
+                  // Verificar que tenga al menos una letra y un número
+                  if (/[A-Z]/.test(correctedWord) && /[0-9]/.test(correctedWord)) {
+                    detectedPlates.push(correctedWord);
+                  }
+                }
+              });
+            });
+
+            // Remover duplicados
+            const uniquePlates = [...new Set(detectedPlates)];
+
+            if (uniquePlates.length > 0) {
+              statusDiv.textContent = `✓ Detectadas ${uniquePlates.length} matrículas`;
+              statusDiv.style.color = "#28a745";
+              platesTextarea.value = uniquePlates.join('\n');
+              detectedPlatesDiv.style.display = "block";
+            } else {
+              statusDiv.textContent = `❌ No se detectaron matrículas válidas en la imagen`;
+              statusDiv.style.color = "#dc3545";
+              // Mostrar el texto original para depuración
+              console.log('Texto completo para análisis:', text);
+              // No mostrar el área de texto si no hay matrículas
+              detectedPlatesDiv.style.display = "none";
+            }
+          } else {
+            statusDiv.textContent = "❌ No se pudo procesar la imagen";
+            statusDiv.style.color = "#dc3545";
+          }
+
+          updateTexts();
+
+        } catch (err) {
+          statusDiv.textContent = "❌ Error al procesar la imagen";
+          statusDiv.style.color = "#dc3545";
+          console.error('Error OCR:', err);
+        }
+      };
+
+      reader.readAsDataURL(file);
+    }
   </script>
 </body>
 
-</html>
+</html> 
